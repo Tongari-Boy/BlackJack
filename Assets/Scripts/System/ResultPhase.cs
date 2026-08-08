@@ -20,8 +20,8 @@ namespace System
         private GameObject resultContents;
 
         private GameObject controlGrid;
-        private GameObject finishButton;
         private GameObject nextButton;
+        private GameObject finishButton;
         private GameObject exitButton;
 
         private List<GameObject> itemBars;
@@ -36,11 +36,11 @@ namespace System
                 {
                     float difficulty = this.gameManager.Difficulty;
 
-                    if (difficulty >= 5.0F)
+                    if (difficulty >= 0.5F)
                     {
                         textMeshProUGUI.text = "Hard";
                     }
-                    else if (difficulty >= 3.0F)
+                    else if (difficulty >= 0.1F)
                     {
                         textMeshProUGUI.text = "Normal";
                     }
@@ -97,20 +97,9 @@ namespace System
                 // コントロールボタンを定義する
                 if (this.gameManagerBehaviour.ResultControlButton != null && this.controlGrid != null)
                 {
-                    this.finishButton = UnityEngine.Object.Instantiate(this.gameManagerBehaviour.ResultControlButton);
                     this.nextButton = UnityEngine.Object.Instantiate(this.gameManagerBehaviour.ResultControlButton);
+                    this.finishButton = UnityEngine.Object.Instantiate(this.gameManagerBehaviour.ResultControlButton);
                     this.exitButton = UnityEngine.Object.Instantiate(this.gameManagerBehaviour.ResultControlButton);
-
-                    if (this.finishButton != null)
-                    {
-                        this.finishButton.name = "Finish";
-                        this.finishButton.transform.SetParent(this.controlGrid.transform);
-                        this.finishButton.transform.localScale = Vector3.one;
-
-                        UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.finishButton, "Title"), textMeshProUGUI => textMeshProUGUI.text = "Finish");
-
-                        this.finishButton.SetActive(false);
-                    }
 
                     if (this.nextButton != null)
                     {
@@ -121,6 +110,17 @@ namespace System
                         UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.nextButton, "Title"), textMeshProUGUI => textMeshProUGUI.text = "Next");
 
                         this.nextButton.SetActive(false);
+                    }
+
+                    if (this.finishButton != null)
+                    {
+                        this.finishButton.name = "Finish";
+                        this.finishButton.transform.SetParent(this.controlGrid.transform);
+                        this.finishButton.transform.localScale = Vector3.one;
+
+                        UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.finishButton, "Title"), textMeshProUGUI => textMeshProUGUI.text = "Finish");
+
+                        this.finishButton.SetActive(false);
                     }
 
                     if (this.exitButton != null)
@@ -175,8 +175,8 @@ namespace System
             }
 
             // リザルト画面を生成する
-            bool hasFinish = false;
             bool hasNext = false;
+            bool hasFinish = false;
             bool hasExit = false;
 
             switch (this.gameManager.GameResult)
@@ -207,11 +207,11 @@ namespace System
                     break;
             }
 
-            if (hasFinish && this.finishButton != null)
-                this.finishButton.SetActive(true);
-
             if (hasNext && this.nextButton != null)
                 this.nextButton.SetActive(true);
+
+            if (hasFinish && this.finishButton != null)
+                this.finishButton.SetActive(true);
 
             if (hasExit && this.exitButton != null)
                 this.exitButton.SetActive(true);
@@ -230,11 +230,11 @@ namespace System
 
             UIUtil.DestoryAll(this.itemBars);
 
-            if (this.finishButton != null)
-                this.finishButton.SetActive(false);
-
             if (this.nextButton != null)
                 this.nextButton.SetActive(false);
+
+            if (this.finishButton != null)
+                this.finishButton.SetActive(false);
 
             if (this.exitButton != null)
                 this.exitButton.SetActive(false);
@@ -257,13 +257,18 @@ namespace System
 
             switch (gameObject.name)
             {
-                case "Finish":
-                    this.gameManager.Call("start");
+                case "Next":
+                    this.gameManager.Call("bet");
                     this.gameManager.Play("Select");
 
                     break;
-                case "Next":
-                    this.gameManager.Call("bet");
+                case "Finish":
+                    if (this.gameManager.Call("start"))
+                    {
+                        // プレイヤーの所持金をリセットする
+                        this.gameManager.playerData.SetValues(50000);
+                    }
+
                     this.gameManager.Play("Select");
 
                     break;

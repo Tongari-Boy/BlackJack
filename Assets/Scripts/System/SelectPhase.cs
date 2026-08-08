@@ -1,6 +1,8 @@
 ﻿using Assets.Scripts.System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Util;
 
 namespace System
 {
@@ -26,6 +28,11 @@ namespace System
         {
             if (this.canvasObject == null)
                 return;
+
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Easy/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"EASY [Quota: {this.gameManager.CalculateQuota(0.05F):N0} $]");
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Normal/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"NORMAL [Quota: {this.gameManager.CalculateQuota(0.1F):N0} $]");
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Hard/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"HARD [Quota: {this.gameManager.CalculateQuota(0.5F):N0} $]");
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Message/Money"), textMeshProUGUI => textMeshProUGUI.text = $"You currently have {this.gameManager.playerData.GetValues():N0} $");
 
             this.canvasObject.SetActive(true);
         }
@@ -58,17 +65,17 @@ namespace System
             switch (gameObject.name)
             {
                 case "Easy":
-                    this.gameManager.Difficulty = 1.0F;
+                    this.gameManager.Difficulty = 0.05F;
                     this.gameManager.Play("Select");
 
                     break;
                 case "Normal":
-                    this.gameManager.Difficulty = 2.0F;
+                    this.gameManager.Difficulty = 0.1F;
                     this.gameManager.Play("Select");
 
                     break;
                 case "Hard":
-                    this.gameManager.Difficulty = 3.0F;
+                    this.gameManager.Difficulty = 0.5F;
                     this.gameManager.Play("Select");
 
                     break;

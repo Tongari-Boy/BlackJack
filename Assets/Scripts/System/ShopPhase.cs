@@ -243,10 +243,6 @@ namespace System
                     {
                         this.SetItemDescription(this.itemCartData[parentTransform.gameObject]);
                     }
-                    else
-                    {
-                        this.SetItemDescription(ItemData.EMPTY);
-                    }
                 }
             }
         }
@@ -413,14 +409,14 @@ namespace System
                     image.sprite = itemImageHolder.DescriptionImage != null ? itemImageHolder.DescriptionImage.sprite : null;
                     image.color = itemImageHolder.DescriptionImage != null ? itemImageHolder.DescriptionImage.color : new Color(1.0F, 1.0F, 1.0F, 0.0F);
 
-                    this.noItemDescription.SetActive(itemImageHolder.DescriptionImage == null);
+                    this.noItemDescription.SetActive(image.sprite == null);
                 });
             }
             else
             {
                 // アイテムの説明を空にする
                 UIUtil.InvokeIfPresent<TextMeshProUGUI>(this.itemName, textMeshProUGUI => textMeshProUGUI.text = "");
-                UIUtil.InvokeIfPresent<Image>(this.itemName, image =>
+                UIUtil.InvokeIfPresent<Image>(this.itemDescription, image =>
                 {
                     image.sprite = null;
                     image.color = new Color(1.0F, 1.0F, 1.0F, 0.0F);
