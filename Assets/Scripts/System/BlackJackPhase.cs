@@ -21,7 +21,6 @@ namespace System
         /// </summary>
         private enum SubPhase
         {
-            Bet,        // ベット処理
             Dealing,    // 最初の2枚配り
             PlyaerTurn, // プレイヤターン
             DealerTurn, // ディーラーターン
@@ -49,8 +48,8 @@ namespace System
 
         private GameObject blackJackOnlyUIs;
 
-        private GameObject betOnlyUIs;
-        private BetButtoms betButtoms;
+        //private GameObject betOnlyUIs;
+        //private BetButtoms betButtoms;
 
         private GameObject resultOnlyUI;
         private GameObject winUI;
@@ -88,8 +87,8 @@ namespace System
             //}
             blackJackOnlyUIs = gameManagerBehaviour.BlackJackOnlyUIs;
 
-            betOnlyUIs = gameManagerBehaviour.BetOnlyUIs;
-            betButtoms = gameManagerBehaviour.BetButtoms;
+            //betOnlyUIs = gameManagerBehaviour.BetOnlyUIs;
+            //betButtoms = gameManagerBehaviour.BetButtoms;
 
             resultOnlyUI = gameManagerBehaviour.ResultOnlyUI;
             winUI = gameManagerBehaviour.WinUI;
@@ -105,9 +104,9 @@ namespace System
             playerValueView.Setup(playerData);
             dealerScoreView.SetActiveText(false);
             blackJackOnlyUIs.SetActive(false);
-            betOnlyUIs.SetActive(false);
+            //betOnlyUIs.SetActive(false);
 
-            betButtoms.OnBetConfirmed += OnBetConfirmed;
+            //betButtoms.OnBetConfirmed += OnBetConfirmed;
         }
 
         /// <summary>
@@ -124,42 +123,20 @@ namespace System
             playerData.SetScore(0);
             dealerData.SetScore(0);
 
-            betOnlyUIs.SetActive(true);
-            betButtoms.ResetInput();
+            //betOnlyUIs.SetActive(true);
+            //betButtoms.ResetInput();
 
-            currentSubPhase = SubPhase.Bet;
-            isInputLocked = true;
+            currentSubPhase = SubPhase.Dealing;
+
+            blackJackOnlyUIs.SetActive(true);
+
+            playerData.SetCard(new System.Collections.Generic.List<CardsManager.Card>());
+            dealerData.SetCard(new System.Collections.Generic.List<CardsManager.Card>());
 
             playerData.SetIsPlaying(true);
             dealerData.SetIsPlaying(true);
 
             ItemSlotSetup();
-        }
-
-        private void OnBetConfirmed(int betAmount)
-        {
-            if(currentSubPhase != SubPhase.Bet)
-            {
-                return;
-            }
-
-            betOnlyUIs.SetActive(false);
-            blackJackOnlyUIs.SetActive(true);
-
-            dealerScoreView.SetActiveText(false);
-            playerData.SetScore(0);
-            dealerData.SetScore(0);
-
-            playerCards.ClearCards();
-            dealerCards.ClearCards();
-
-            currentSubPhase = SubPhase.Dealing;
-
-            deck.InitializeDeck();
-            deck.Shuffle();
-
-            playerData.SetCard(new System.Collections.Generic.List<CardsManager.Card>());
-            dealerData.SetCard(new System.Collections.Generic.List<CardsManager.Card>());
 
             playerCards.DrawCard(2);
             dealerCards.DrawInitialCards();
@@ -167,6 +144,38 @@ namespace System
             currentSubPhase = SubPhase.PlyaerTurn;
             isInputLocked = false;
         }
+
+        //private void OnBetConfirmed(int betAmount)
+        //{
+        //    if(currentSubPhase != SubPhase.Dealing)
+        //    {
+        //        return;
+        //    }
+
+        //    betOnlyUIs.SetActive(false);
+        //    blackJackOnlyUIs.SetActive(true);
+
+        //    dealerScoreView.SetActiveText(false);
+        //    playerData.SetScore(0);
+        //    dealerData.SetScore(0);
+
+        //    playerCards.ClearCards();
+        //    dealerCards.ClearCards();
+
+        //    currentSubPhase = SubPhase.Dealing;
+
+        //    deck.InitializeDeck();
+        //    deck.Shuffle();
+
+        //    playerData.SetCard(new System.Collections.Generic.List<CardsManager.Card>());
+        //    dealerData.SetCard(new System.Collections.Generic.List<CardsManager.Card>());
+
+        //    playerCards.DrawCard(2);
+        //    dealerCards.DrawInitialCards();
+
+        //    currentSubPhase = SubPhase.PlyaerTurn;
+        //    isInputLocked = false;
+        //}
 
         protected override void Update()
         {
@@ -395,7 +404,7 @@ namespace System
             winUI.SetActive(false);
             loseUI.SetActive(false);
             isWin = false;
-            currentSubPhase = SubPhase.Bet;
+            currentSubPhase = SubPhase.Dealing;
 
             Debug.Log("リザルトフェーズへ移行");
         }
