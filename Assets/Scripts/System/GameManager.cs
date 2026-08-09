@@ -59,7 +59,7 @@ namespace System
                 // デバッグ
                 if (old != this.Quata)
                 {
-                    UnityEngine.Debug.Log($"難易度が変更されました！（ノルマ額：{old} $ → {this.Quata} $）");
+                    UnityEngine.Debug.Log($"難易度が変更されました！（ノルマ額：{old:N0} $ → {this.Quata:N0} $）");
                 }
             }
         }
@@ -69,7 +69,15 @@ namespace System
         /// </summary>
         public int Quata
         {
-            get { return (int)(600000.0D * this.difficulty); }
+            get { return this.CalculateQuota(this.difficulty); }
+        }
+
+        /// <summary>
+        /// ゲームのノルマを計算する
+        /// </summary>
+        public int CalculateQuota(float difficulty)
+        {
+            return (int)(600000.0D * difficulty);
         }
 
         /// <summary>

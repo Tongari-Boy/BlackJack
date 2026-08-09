@@ -108,15 +108,13 @@ namespace Util
             Transform parentTransform = gameObject.transform.parent;
             int parentLevel = 1;
 
-            while (parentTransform != null && parentTransform.gameObject.name != name)
+            while (parentTransform != null)
             {
+                if (parentTransform.gameObject.name == name && minParentLevel <= parentLevel && parentLevel <= maxParentLevel)
+                    return parentTransform.gameObject;
+
                 parentTransform = parentTransform.parent;
                 ++parentLevel;
-            }
-
-            if (parentTransform != null && minParentLevel <= parentLevel && parentLevel <= maxParentLevel)
-            {
-                return parentTransform.gameObject;
             }
 
             UnityEngine.Debug.LogWarning($"GameObject（Name: {gameObject.name}）に親GameObject（Name: {name}）は存在しません…");
