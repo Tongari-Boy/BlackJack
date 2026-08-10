@@ -188,7 +188,7 @@ namespace System
                         this.gameManager.playerData.SetValues(Mathf.Max(0, this.playerMoneyBuffer - this.itemTotalValueBuffer));
 
                         // デバッグ
-                        UnityEngine.Debug.Log($"プレイヤーがアイテムを購入しました！（所持金：{this.playerMoneyBuffer} $ → {this.gameManager.playerData.GetValues()} $）");
+                        UnityEngine.Debug.Log($"プレイヤーがアイテムを購入しました！（所持金：{this.playerMoneyBuffer:N0} $ → {this.gameManager.playerData.GetValues():N0} $）");
 
                         // プレイヤーにアイテムを追加
                         this.gameManager.AddPlayerItemData(this.itemCartData.Values.ToArray());
