@@ -364,8 +364,24 @@ namespace System
                 // デバッグ
                 if (addFlag && itemDataToAdd.Count > 0)
                 {
-                    UnityEngine.Debug.Log($"プレイヤーにアイテム（Name: {itemDataToAdd.Information}）を{itemDataToAdd.Count}コ追加しました！（合計：{totalCount}コ）");
+                    UnityEngine.Debug.Log($"プレイヤーにアイテム ( {itemDataToAdd.Information} ）を{itemDataToAdd.Count}コ追加しました！（ 合計：{totalCount}コ ）");
                 }
+            }
+        }
+
+        /// <summary>
+        /// <para>プレイヤーのItemDataをクリアする</para>
+        /// </summary>
+        public void ClearPlayerItemData()
+        {
+            if (this.playerItemData == null)
+                return;
+
+            if (this.playerItemData.Count > 0)
+            {
+                this.playerItemData.Clear();
+
+                UnityEngine.Debug.Log("プレイヤーのアイテムをクリアしました！");
             }
         }
 

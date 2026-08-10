@@ -267,6 +267,9 @@ namespace System
                     {
                         // プレイヤーの所持金をリセットする
                         this.gameManager.playerData.SetValues(50000);
+
+                        // プレイヤーのアイテムをクリアする
+                        this.gameManager.ClearPlayerItemData();
                     }
 
                     this.gameManager.Play("Select");

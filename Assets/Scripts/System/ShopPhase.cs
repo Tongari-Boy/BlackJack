@@ -184,17 +184,20 @@ namespace System
                 case "Buy":
                     if (this.gameManager.InfiniteMoneyMode || this.itemTotalValueBuffer <= this.playerMoneyBuffer)
                     {
-                        // プレイヤーにアイテムを追加
-                        this.gameManager.AddPlayerItemData(this.itemCartData.Values.ToArray());
-
                         // プレイヤーの所持金を減らす
                         this.gameManager.playerData.SetValues(Mathf.Max(0, this.playerMoneyBuffer - this.itemTotalValueBuffer));
 
-                        // 次のGamePhaseを呼び出す
-                        this.gameManager.Call("blackjack");
+                        // デバッグ
+                        UnityEngine.Debug.Log($"プレイヤーがアイテムを購入しました！（所持金：{this.playerMoneyBuffer} $ → {this.gameManager.playerData.GetValues()} $）");
+
+                        // プレイヤーにアイテムを追加
+                        this.gameManager.AddPlayerItemData(this.itemCartData.Values.ToArray());
 
                         // サウンドを再生
                         this.gameManager.Play("Buy");
+
+                        // 次のGamePhaseを呼び出す
+                        this.gameManager.Call("blackjack");
                     }
                     else
                     {

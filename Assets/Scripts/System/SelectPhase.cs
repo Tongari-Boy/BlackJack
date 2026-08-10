@@ -29,9 +29,15 @@ namespace System
             if (this.canvasObject == null)
                 return;
 
-            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Easy/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"EASY [Quota: {this.gameManager.CalculateQuota(0.05F):N0} $]");
-            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Normal/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"NORMAL [Quota: {this.gameManager.CalculateQuota(0.1F):N0} $]");
-            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Hard/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"HARD [Quota: {this.gameManager.CalculateQuota(0.5F):N0} $]");
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Easy/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"EASY");
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Easy/Quota"), textMeshProUGUI => textMeshProUGUI.text = $" - Quota: {this.gameManager.CalculateQuota(0.05F):N0} $");
+
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Normal/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"NORMAL");
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Normal/Quota"), textMeshProUGUI => textMeshProUGUI.text = $" - Quota: {this.gameManager.CalculateQuota(0.1F):N0} $");
+
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Hard/Texts"), textMeshProUGUI => textMeshProUGUI.text = $"HARD");
+            UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Hard/Quota"), textMeshProUGUI => textMeshProUGUI.text = $" - Quota: {this.gameManager.CalculateQuota(0.5F):N0} $");
+            
             UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(this.canvasObject, "Message/Money"), textMeshProUGUI => textMeshProUGUI.text = $"You currently have {this.gameManager.playerData.GetValues():N0} $");
 
             this.canvasObject.SetActive(true);
@@ -84,6 +90,19 @@ namespace System
                     this.gameManager.Play("Select");
 
                     break;
+            }
+        }
+
+        public override void Invoke(GameObject gameObject, params object[] contexts)
+        {
+            // カーソルが乗ったかどうか検知する
+            if (gameObject != null && contexts != null && contexts.Length >= 1 && contexts[0] is string type && type == "Pointer Enter")
+            {
+                UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(gameObject, "Quota"), textMeshProUGUI => textMeshProUGUI.color = new Color(1.0F, 0.75F, 0.0F, 1.0F));
+            }
+            else
+            {
+                UIUtil.InvokeIfPresent<TextMeshProUGUI>(UIUtil.GetChild(gameObject, "Quota"), textMeshProUGUI => textMeshProUGUI.color = new Color(1.0F, 1.0F, 1.0F, 0.0F));
             }
         }
     }
