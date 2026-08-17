@@ -42,7 +42,6 @@ namespace Assets.Scripts.System
         [SerializeField] private Cards.DealerCards dealerCards;
         [SerializeField] private Player.PlayerScoreView playerScoreView;
         [SerializeField] private Player.DealerScoreView dealerScoreView;
-        // [SerializeField] private Player.PayoutMultiplierView payoutMultiplierView;
         [SerializeField] private Player.PlayerValueView playerValueView;
         [SerializeField] private GameObject blackJackOnlyUIs;
 
@@ -50,6 +49,9 @@ namespace Assets.Scripts.System
         [SerializeField] private GameObject resultOnlyUI;
         [SerializeField] private GameObject winUI;
         [SerializeField] private GameObject loseUI;
+
+        [Header("確認ボタン")]
+        [SerializeField] private GameObject confirmPopupPrefab;
 
         [Header("ベット関連")]
         [SerializeField] private GameObject betOnlyUIs;
@@ -111,7 +113,6 @@ namespace Assets.Scripts.System
         public Cards.DealerCards DealerCards => dealerCards;
         public Player.PlayerScoreView PlayerScoreView => playerScoreView;
         public Player.DealerScoreView DealerScoreView => dealerScoreView;
-        // public Player.PayoutMultiplierView PayoutMultiplierView => payoutMultiplierView;
         public Player.PlayerValueView PlayerValueView => playerValueView;
         public GameObject BlackJackOnlyUIs => blackJackOnlyUIs;
 
@@ -119,6 +120,7 @@ namespace Assets.Scripts.System
         public GameObject WinUI => winUI;
         public GameObject LoseUI => loseUI;
 
+        public GameObject ConfirmPopupPrefab => confirmPopupPrefab;
 
         public GameObject BetOnlyUIs => betOnlyUIs;
 

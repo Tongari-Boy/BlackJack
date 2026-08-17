@@ -1,37 +1,39 @@
-using Assets.Scripts.System;
-using Bet;
+ï»¿using Assets.Scripts.System;
 using Cards;
 using Item;
+using System;
 using Player;
 using UnityEngine;
 using Util;
 using UnityEngine.UI;
+using TMPro;
 
 namespace System
 {
     /// <summary>
-    /// <para>ƒuƒ‰ƒbƒNƒWƒƒƒbƒN‚ÌƒtƒF[ƒY‚ğ’è‹`‚·‚é</para>
+    /// <para>ãƒ–ãƒ©ãƒƒã‚¯ã‚¸ãƒ£ãƒƒã‚¯ã®ãƒ•ã‚§ãƒ¼ã‚ºã‚’å®šç¾©ã™ã‚‹</para>
     /// </summary>
     public class BlackjackPhase : GamePhase
     {
         /// <summary>
-        /// ƒuƒ‰ƒbƒNƒWƒƒƒbƒN“à‚Å‚Ì×‚©‚¢ƒtƒF[ƒY•ª‚¯
+        /// ãƒ–ãƒ©ãƒƒã‚¯ã‚¸ãƒ£ãƒƒã‚¯å†…ã§ã®ç´°ã‹ã„ãƒ•ã‚§ãƒ¼ã‚ºåˆ†ã‘
         /// 
-        /// ƒvƒŒƒCƒ„‚Ì“ü—Í–³‹‚È‚Ç‚Ì‚½‚ß‚É—p‚¢‚é
+        /// ãƒ—ãƒ¬ã‚¤ãƒ¤ã®å…¥åŠ›ç„¡è¦–ãªã©ã®ãŸã‚ã«ç”¨ã„ã‚‹
         /// </summary>
         private enum SubPhase
         {
-            Dealing,    // Å‰‚Ì2–‡”z‚è
-            PlyaerTurn, // ƒvƒŒƒCƒ„ƒ^[ƒ“
-            DealerTurn, // ƒfƒB[ƒ‰[ƒ^[ƒ“
-            Judge,      // ƒo[ƒXƒg‚µ‚Ä‚¢‚È‚¢‚©AŒİ‚¢‚ÉƒXƒ‰ƒCƒh‚µ‚½‚©‚È‚Ç‚Ì”»’è
-            Result,     // Œ‹‰Ê‚Ì˜b
+            Dealing,    // æœ€åˆã®2æšé…ã‚Š
+            PlyaerTurn, // ãƒ—ãƒ¬ã‚¤ãƒ¤ã‚¿ãƒ¼ãƒ³
+            StandConfirm,   // Standã®ç¢ºèªå¾…ã¡
+            DealerTurn, // ãƒ‡ã‚£ãƒ¼ãƒ©ãƒ¼ã‚¿ãƒ¼ãƒ³
+            Judge,      // ãƒãƒ¼ã‚¹ãƒˆã—ã¦ã„ãªã„ã‹ã€äº’ã„ã«ã‚¹ãƒ©ã‚¤ãƒ‰ã—ãŸã‹ãªã©ã®åˆ¤å®š
+            Result,     // çµæœã®è©±
         }
 
         private SubPhase currentSubPhase;
 
         /// <summary>
-        /// ƒAƒjƒ[ƒVƒ‡ƒ“’†‚È‚Ç‚É“ü—Í‚ğˆê“I‚É’â~‚³‚¹‚éƒtƒ‰ƒO
+        /// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ä¸­ãªã©ã«å…¥åŠ›ã‚’ä¸€æ™‚çš„ã«åœæ­¢ã•ã›ã‚‹ãƒ•ãƒ©ã‚°
         /// </summary>
         private bool isInputLocked = true;
 
@@ -53,21 +55,27 @@ namespace System
         private bool isWin = false;
 
         /// <summary>
-        /// ƒfƒB[ƒ‰[‚ÌƒJ[ƒh‚ß‚­‚èˆ—‚ªis’†‚©
+        /// ãƒ‡ã‚£ãƒ¼ãƒ©ãƒ¼ã®ã‚«ãƒ¼ãƒ‰ã‚ãã‚Šå‡¦ç†ãŒé€²è¡Œä¸­ã‹
         /// 
-        /// Update“à‚ÅƒRƒ‹[ƒ`ƒ“‚ğd•¡‚µ‚Ä‚ÌŒÄ‚Ño‚µ‚ğ–h‚®‚½‚ß‚É—p‚¢‚é
+        /// Updateå†…ã§ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’é‡è¤‡ã—ã¦ã®å‘¼ã³å‡ºã—ã‚’é˜²ããŸã‚ã«ç”¨ã„ã‚‹
         /// </summary>
         private bool isDealerCardsOpening = false;
+
+        /// <summary>
+        /// ç¢ºèªãƒœã‚¿ãƒ³ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
+        /// </summary>
+        private GameObject confirmPopupObject;
+
+        private Action pendingComfirmAction;
 
 
         public BlackjackPhase(GameManager gameManager, GameManagerBehaviour gameManagerBehaviour) : base(gameManager, gameManagerBehaviour) { }
 
         /// <summary>
-        /// QÆ‚Ìæ“¾/‰ŠúƒZƒbƒgƒAƒbƒv
+        /// å‚ç…§ã®å–å¾—/åˆæœŸã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—
         /// </summary>
         protected override void Init()
         {
-            
             deck = gameManagerBehaviour.Deck;
             gameManager.ResisterDeck(deck);
 
@@ -84,18 +92,18 @@ namespace System
 
             playerData = gameManager.playerData;
             dealerData = gameManager.dealerData;
-            dealerData = gameManager.dealerData;
             playerCards.Setup(playerData, deck);
             dealerCards.Setup(dealerData, deck);
+
             playerScoreView.Setup(playerData);
             dealerScoreView.Setup(dealerData);
             playerValueView.Setup(playerData);
-            dealerScoreView.SetActiveText(false);
-            blackJackOnlyUIs.SetActive(false);
+
+            SetupComfirmPopup();
         }
 
         /// <summary>
-        /// ƒXƒ^[ƒg
+        /// ã‚¹ã‚¿ãƒ¼ãƒˆ
         /// </summary>
         protected override void Start()
         {
@@ -103,6 +111,7 @@ namespace System
             resultOnlyUI.SetActive(false);
             winUI.SetActive(false);
             loseUI.SetActive(false);
+
             isWin = false;
 
             playerData.SetScore(0);
@@ -119,9 +128,9 @@ namespace System
             dealerData.SetIsPlaying(true);
 
             ItemSlotSetup();
-            deck.Shuffle();
 
             deck.InitializeDeck();
+            deck.Shuffle();
 
             playerCards.DrawCard(2);
             dealerCards.DrawInitialCards();
@@ -131,7 +140,7 @@ namespace System
         }
 
         /// <summary>
-        /// XV
+        /// æ›´æ–°
         /// </summary>
         protected override void Update()
         {
@@ -152,7 +161,7 @@ namespace System
                     break;
 
                 case SubPhase.DealerTurn:
-                    //ƒfƒB[ƒ‰[‚Ìˆ—‚ª–¢ŠJn‚È‚çƒRƒ‹[ƒ`ƒ“‚ğƒXƒ^[ƒg‚³‚¹‚é
+                    //ãƒ‡ã‚£ãƒ¼ãƒ©ãƒ¼ã®å‡¦ç†ãŒæœªé–‹å§‹ãªã‚‰ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’ã‚¹ã‚¿ãƒ¼ãƒˆã•ã›ã‚‹
                     if(!isDealerCardsOpening)
                     {
                         isDealerCardsOpening = true;
@@ -162,33 +171,25 @@ namespace System
 
                 case SubPhase.Judge:
                     JudgeResult();
-
                     currentSubPhase = SubPhase.Result;
                     break;
 
                 case SubPhase.Result:
-                    //Œ‹‰Ê•\¦ˆ—
+                    //çµæœè¡¨ç¤ºå‡¦ç†
 
                     blackJackOnlyUIs.SetActive(false);
                     playerCards.ClearCards();
-
                     dealerCards.ClearCards();
-                    if(isWin)
+
+                    ShowResultUI();
+
+                    // ãƒ™ãƒƒãƒˆé¡ã€å€ç‡ãªã©ã‹ã‚‰è¨ˆç®—å‡¦ç†
+
+                    ShowConfirmPopup("Result", () =>
                     {
-                        winUI.SetActive(true);
 
-                        this.gameManager.GameResult = ResultPhase.Result.Win;
-                    }
-                    else
-                    {
-                        loseUI.SetActive(true);
-
-                        this.gameManager.GameResult = ResultPhase.Result.Lose;
-                    }
-
-                    resultOnlyUI.SetActive(true);
-
-                    GameManager.INSTANCE.Call("result");
+                        GameManager.INSTANCE.Call("result");
+                    });
                     break;
             }
         }
@@ -200,7 +201,7 @@ namespace System
 
         private void ItemSlotSetup()
         {
-            // ƒAƒCƒeƒ€ƒ{ƒ^ƒ“A
+            // ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³A
             GameObject slotA = UIUtil.GetChild(this.blackJackOnlyUIs, "ItemBtns/A");
 
             Image imgA = slotA != null ? slotA.GetComponent<Image>() : null;
@@ -214,7 +215,7 @@ namespace System
                 imgA.sprite = holderA.ItemImage?.sprite;
             }
 
-            // ƒAƒCƒeƒ€ƒ{ƒ^ƒ“B
+            // ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³B
             GameObject slotB = UIUtil.GetChild(this.blackJackOnlyUIs, "ItemBtns/B");
 
             Image imgB = slotB != null ? slotB.GetComponent<Image>() : null;
@@ -228,7 +229,7 @@ namespace System
                 imgB.sprite = holderB.ItemImage?.sprite;
             }
 
-            // ƒAƒCƒeƒ€ƒ{ƒ^ƒ“C
+            // ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³C
             GameObject slotC = UIUtil.GetChild(this.blackJackOnlyUIs, "ItemBtns/C");
 
             Image imgC = slotC != null ? slotC.GetComponent<Image>() : null;
@@ -242,7 +243,7 @@ namespace System
                 imgC.sprite = holderC.ItemImage?.sprite;
             }
 
-            // ƒAƒCƒeƒ€ƒ{ƒ^ƒ“D
+            // ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³D
             GameObject slotD = UIUtil.GetChild(this.blackJackOnlyUIs, "ItemBtns/D");
 
             Image imgD = slotD != null ? slotD.GetComponent<Image>() : null;
@@ -256,7 +257,7 @@ namespace System
                 imgD.sprite = holderD.ItemImage?.sprite;
             }
 
-            // ƒAƒCƒeƒ€ƒ{ƒ^ƒ“E
+            // ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³E
             GameObject slotE = UIUtil.GetChild(this.blackJackOnlyUIs, "ItemBtns/E");
 
             Image imgE = slotE != null ? slotE.GetComponent<Image>() : null;
@@ -270,7 +271,7 @@ namespace System
                 imgE.sprite = holderE.ItemImage?.sprite;
             }
 
-            // ƒAƒCƒeƒ€ƒ{ƒ^ƒ“F
+            // ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³F
             GameObject slotF = UIUtil.GetChild(this.blackJackOnlyUIs, "ItemBtns/F");
 
             Image imgF = slotF != null ? slotF.GetComponent<Image>() : null;
@@ -291,7 +292,7 @@ namespace System
         //============================
 
         /// <summary>
-        /// ƒqƒbƒg‚Å‚«‚é‚©
+        /// ãƒ’ãƒƒãƒˆã§ãã‚‹ã‹
         /// </summary>
         public void TryHit()
         {
@@ -302,15 +303,13 @@ namespace System
 
             isInputLocked = true;
             playerCards.Hit();
-            // gameManager.Play();
             isInputLocked = false;
-            Debug.Log("ƒqƒbƒgI—¹");
 
             this.gameManager.Play("Select");
         }
 
         /// <summary>
-        /// ƒXƒ^ƒ“ƒh‚Å‚«‚é‚©
+        /// ã‚¹ã‚¿ãƒ³ãƒ‰ã§ãã‚‹ã‹
         /// </summary>
         public void TryStand()
         {
@@ -320,14 +319,18 @@ namespace System
             }
 
             isInputLocked = true;
-            playerCards.Stand();
-            isInputLocked = false;
 
-            this.gameManager.Play("Select");
+            ShowConfirmPopup("Turn End?", () =>
+            {
+                playerCards.Stand();
+            });
+
+            //this.gameManager.Play("Select");
+            //currentSubPhase = SubPhase.DealerTurn;
         }
 
         /// <summary>
-        /// ƒAƒCƒeƒ€ƒ{ƒ^ƒ“‰Ÿ‚¹‚é‚©
+        /// ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³æŠ¼ã›ã‚‹ã‹
         /// </summary>
         public void TryItemButtom(int index)
         {
@@ -346,7 +349,7 @@ namespace System
         }
 
         /// <summary>
-        /// ƒvƒŒƒCƒ„‚Ì‘€ì‚Ì”»’è
+        /// ãƒ—ãƒ¬ã‚¤ãƒ¤ã®æ“ä½œã®åˆ¤å®š
         /// </summary>
         /// <returns></returns>
         private bool CanPlayerAct()
@@ -357,7 +360,7 @@ namespace System
         }
 
         /// <summary>
-        /// ƒAƒCƒeƒ€ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚Ìˆ—
+        /// ã‚¢ã‚¤ãƒ†ãƒ ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸæ™‚ã®å‡¦ç†
         /// </summary>
         /// <param name="gameObject"></param>
         /// <param name="contexts"></param>
@@ -379,7 +382,7 @@ namespace System
         //============================
 
         /// <summary>
-        /// ƒfƒB[ƒ‰[‚Ìvl/ƒJ[ƒh‚ß‚­‚è‚ğs‚¤ƒRƒ‹[ƒ`ƒ“
+        /// ãƒ‡ã‚£ãƒ¼ãƒ©ãƒ¼ã®æ€è€ƒ/ã‚«ãƒ¼ãƒ‰ã‚ãã‚Šã‚’è¡Œã†ã‚³ãƒ«ãƒ¼ãƒãƒ³
         /// </summary>
         /// <returns></returns>
         private System.Collections.IEnumerator DealerTurnRoutine()
@@ -391,7 +394,7 @@ namespace System
 
             dealerData.SetIsPlaying(false);
 
-            // ƒfƒB[ƒ‰[‚ÌƒJ[ƒh‚ğˆê’èŠÔ‚²‚Æ‚É‚ß‚­‚é
+            // ãƒ‡ã‚£ãƒ¼ãƒ©ãƒ¼ã®ã‚«ãƒ¼ãƒ‰ã‚’ä¸€å®šæ™‚é–“ã”ã¨ã«ã‚ãã‚‹
             yield return gameManagerBehaviour.StartCoroutine(dealerCards.CardsOpen(0.7f));
 
             yield return new WaitForSeconds(0.5f);
@@ -419,8 +422,8 @@ namespace System
 
             if (playerBurst)
             {
-                // ƒvƒŒƒCƒ„•‰‚¯ˆ—
-                Debug.Log("ƒvƒŒƒCƒ„‚Ì•‰‚¯");
+                // ãƒ—ãƒ¬ã‚¤ãƒ¤è² ã‘å‡¦ç†
+                Debug.Log("ãƒ—ãƒ¬ã‚¤ãƒ¤ã®è² ã‘");
                 isWin = false;
             }
             else if (dealerBurst || playerScore > dealerScore)
@@ -428,27 +431,27 @@ namespace System
                 float mutiplier = CalcultePayoutMultiplier();
                 int payout = bet + Mathf.RoundToInt(bet * mutiplier);
 
-                // ƒvƒŒƒCƒ„Ÿ‚¿
-                Debug.Log("ƒvƒŒƒCƒ„‚ÌŸ‚¿");
+                // ãƒ—ãƒ¬ã‚¤ãƒ¤å‹ã¡
+                Debug.Log("ãƒ—ãƒ¬ã‚¤ãƒ¤ã®å‹ã¡");
                 isWin = true;
             }
             else if (playerScore < dealerScore)
             {
-                // ƒvƒŒƒCƒ„•‰‚¯
-                Debug.Log("ƒvƒŒƒCƒ„‚Ì•‰‚¯");
+                // ãƒ—ãƒ¬ã‚¤ãƒ¤è² ã‘
+                Debug.Log("ãƒ—ãƒ¬ã‚¤ãƒ¤ã®è² ã‘");
                 isWin = false;
             }
             else
             {
                 playerData.AddValues(bet);
 
-                // ˆø‚«•ª‚¯
-                Debug.Log("‚Ğ‚«‚í‚¯");
+                // å¼•ãåˆ†ã‘
+                Debug.Log("ã²ãã‚ã‘");
             }
         }
 
         /// <summary>
-        /// ƒuƒ‰ƒbƒNƒWƒƒƒbƒN‚©‚Ç‚¤‚©”»’è
+        /// ãƒ–ãƒ©ãƒƒã‚¯ã‚¸ãƒ£ãƒƒã‚¯ã‹ã©ã†ã‹åˆ¤å®š
         /// </summary>
 
         private bool IsBlackjack()
@@ -464,13 +467,26 @@ namespace System
         /// <summary>
         /// 
         /// </summary>
-        public void ResultUIActive()
+        public void ShowResultUI()
         {
+            if (isWin)
+            {
+                winUI.SetActive(true);
 
+                this.gameManager.GameResult = ResultPhase.Result.Win;
+            }
+            else
+            {
+                loseUI.SetActive(true);
+
+                this.gameManager.GameResult = ResultPhase.Result.Lose;
+            }
+
+            resultOnlyUI.SetActive(true);
         }
 
         /// <summary>
-        /// ”{—¦ŒvZ
+        /// å€ç‡è¨ˆç®—
         /// </summary>
         /// <returns></returns>
         private float CalcultePayoutMultiplier()
@@ -488,10 +504,57 @@ namespace System
 
             return playerData.PayoutMultiplier.Calculate();
         }
+
+        //====================
+        // ãã®ä»–æ±ç”¨å‡¦ç†
+        //====================
+        private void SetupComfirmPopup()
+        {
+            if (gameManagerBehaviour.ConfirmPopupPrefab == null)
+                return;
+
+            confirmPopupObject = UnityEngine.Object.Instantiate(gameManagerBehaviour.ConfirmPopupPrefab);
+
+            UIUtil.InvokeIfPresent<Button>(UIUtil.GetChild(confirmPopupObject, "ConfirmButton"), button =>
+            {
+                button.onClick.AddListener(OnConfirmButtonClicked);
+            });
+
+            confirmPopupObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// ç¢ºèªãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚’è¡¨ç¤ºã™ã‚‹
+        /// </summary>
+        /// <param name="message">è¡¨ç¤ºãƒ¡ãƒƒã‚»ãƒ¼ã‚¸</param>
+        /// <param name="onConfirmed">ç¢ºèªãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã¨ãã«å®Ÿè¡Œã™ã‚‹å‡¦ç†</param>
+        private void ShowConfirmPopup(string message,Action onConfirmed)
+        {
+            if (confirmPopupObject == null)
+                return;
+
+            pendingComfirmAction = onConfirmed;
+
+            UIUtil.InvokeIfPresent<TMP_Text>(UIUtil.GetChild(confirmPopupObject, "MessageText"), text =>
+            {
+                text.text = message;
+            });
+
+            confirmPopupObject.SetActive(true);
+        }
+
+        private void OnConfirmButtonClicked()
+        {
+            confirmPopupObject.SetActive(false);
+
+            var action = pendingComfirmAction;
+            pendingComfirmAction = null;
+            action?.Invoke();
+        }
         
 
         //====================
-        // I—¹ˆ—
+        // çµ‚äº†å‡¦ç†
         //====================
 
         protected override void Finish()
@@ -504,7 +567,7 @@ namespace System
             isWin = false;
             currentSubPhase = SubPhase.Dealing;
 
-            Debug.Log("ƒŠƒUƒ‹ƒgƒtƒF[ƒY‚ÖˆÚs");
+            Debug.Log("ãƒªã‚¶ãƒ«ãƒˆãƒ•ã‚§ãƒ¼ã‚ºã¸ç§»è¡Œ");
         }
 
         protected override void Destroy()
@@ -515,6 +578,11 @@ namespace System
             playerScoreView = null;
             playerData = null;
             dealerData = null;
+
+            if (confirmPopupObject != null)
+            {
+                UnityEngine.Object.Destroy(confirmPopupObject);
+            }
         }
     }
 }
