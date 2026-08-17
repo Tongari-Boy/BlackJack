@@ -222,7 +222,7 @@ MonoBehaviour:
   shopCanvas: {fileID: 8134117890614274037, guid: 9ab10d6b9a153844a865145dd7da5f36, type: 3}
   itemDisplaySlot: {fileID: 8905242066037841337, guid: 98fe855389d4a3e48873a9c71e86800b, type: 3}
   itemCartSlot: {fileID: 2314702115060370744, guid: 916867bca7fa7614f9d9b1e02100a743, type: 3}
-  blackjackCanvas: {fileID: 3392580874297325404, guid: bf2bbc266ac57f84492d3f41f7164b82, type: 3}
+  blackjackCanvas: {fileID: 636106916}
   resultCanvas: {fileID: 4573175703843386772, guid: 2d261d40f6ecde5438db14fc7d8586ee, type: 3}
   resultItemBar: {fileID: 4144967896742518089, guid: 9ca6c8a0c595ace49a8cc1b03c476dc2, type: 3}
   resultControlButton: {fileID: 7290845496792511636, guid: f3bd99782c3024946837c0b2a7d2cb71, type: 3}
@@ -236,6 +236,7 @@ MonoBehaviour:
   resultOnlyUI: {fileID: 1565165332}
   winUI: {fileID: 1565165331}
   loseUI: {fileID: 1565165330}
+  confirmPopupPrefab: {fileID: 6272700627077560457, guid: cd791adc868ecc141b6c031bfb283793, type: 3}
   betOnlyUIs: {fileID: 1860600974}
   betButtoms: {fileID: 1860600976}
 --- !u!4 &410014902
@@ -253,6 +254,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &636106916 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3392580874297325404, guid: bf2bbc266ac57f84492d3f41f7164b82, type: 3}
+  m_PrefabInstance: {fileID: 1565165329}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &677232957
 GameObject:
   m_ObjectHideFlags: 0
