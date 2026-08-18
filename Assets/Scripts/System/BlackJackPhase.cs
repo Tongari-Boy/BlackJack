@@ -1,7 +1,6 @@
 ﻿using Assets.Scripts.System;
 using Cards;
 using Item;
-using System;
 using Player;
 using UnityEngine;
 using Util;
@@ -27,6 +26,7 @@ namespace System
             StandConfirm,   // Standの確認待ち
             DealerTurn, // ディーラーターン
             Judge,      // バーストしていないか、互いにスライドしたかなどの判定
+            Adaptation, // 払い戻しの適応(勝ったときのみ移動する)
             Result,     // 結果の話
         }
 
@@ -53,6 +53,8 @@ namespace System
         private GameObject winUI;
         private GameObject loseUI;
         private bool isWin = false;
+        private float mutiplier = 1.0f; // 倍率
+        private int payout = 0;         // 払い戻し
 
         /// <summary>
         /// ディーラーのカードめくり処理が進行中か
@@ -67,7 +69,6 @@ namespace System
         private GameObject confirmPopupObject;
 
         private Action pendingComfirmAction;
-
 
         public BlackjackPhase(GameManager gameManager, GameManagerBehaviour gameManagerBehaviour) : base(gameManager, gameManagerBehaviour) { }
 
@@ -171,7 +172,31 @@ namespace System
 
                 case SubPhase.Judge:
                     JudgeResult();
+
+                    if(isWin)
+                    {
+                        currentSubPhase = SubPhase.Adaptation;
+                    }
+                    else
+                    {
+                        currentSubPhase = SubPhase.Result;
+                    }
+                    
+                    break;
+
+                case SubPhase.Adaptation:
+                    int bet = playerData.GetBet();
+
+                    mutiplier = CalcultePayoutMultiplier();
+                    Debug.Log(mutiplier);
+                    payout = bet + Mathf.RoundToInt(bet * mutiplier);
+                    Debug.Log(payout);
+
+                    SetPayout();
+                    Debug.Log(playerData.GetValues());
+
                     currentSubPhase = SubPhase.Result;
+
                     break;
 
                 case SubPhase.Result:
@@ -182,8 +207,6 @@ namespace System
                     dealerCards.ClearCards();
 
                     ShowResultUI();
-
-                    // ベット額、倍率などから計算処理
 
                     ShowConfirmPopup("Result", () =>
                     {
@@ -324,9 +347,6 @@ namespace System
             {
                 playerCards.Stand();
             });
-
-            //this.gameManager.Play("Select");
-            //currentSubPhase = SubPhase.DealerTurn;
         }
 
         /// <summary>
@@ -418,8 +438,6 @@ namespace System
             int playerScore = playerData.GetScore();
             int dealerScore = dealerData.GetScore();
 
-            int bet = playerData.GetBet();
-
             if (playerBurst)
             {
                 // プレイヤ負け処理
@@ -428,9 +446,6 @@ namespace System
             }
             else if (dealerBurst || playerScore > dealerScore)
             {
-                float mutiplier = CalcultePayoutMultiplier();
-                int payout = bet + Mathf.RoundToInt(bet * mutiplier);
-
                 // プレイヤ勝ち
                 Debug.Log("プレイヤの勝ち");
                 isWin = true;
@@ -443,8 +458,6 @@ namespace System
             }
             else
             {
-                playerData.AddValues(bet);
-
                 // 引き分け
                 Debug.Log("ひきわけ");
             }
@@ -453,7 +466,6 @@ namespace System
         /// <summary>
         /// ブラックジャックかどうか判定
         /// </summary>
-
         private bool IsBlackjack()
         {
             return playerData.GetCard().Count == 2 && playerData.GetScore() == 21;
@@ -465,7 +477,7 @@ namespace System
         //============================
 
         /// <summary>
-        /// 
+        /// 結果UIの表示
         /// </summary>
         public void ShowResultUI()
         {
@@ -503,6 +515,15 @@ namespace System
             }
 
             return playerData.PayoutMultiplier.Calculate();
+        }
+
+        
+        /// <summary>
+        /// プレイヤデータに払い戻し額を適応
+        /// </summary>
+        private void SetPayout()
+        {
+            playerData.AddValues(payout);
         }
 
         //====================
