@@ -32,6 +32,9 @@ namespace System
 
         private List<GameObject> itemBars;
 
+        private bool isPerfect = false;
+        private bool perfectWin = false;
+
         public ResultPhase(GameManager gameManager, GameManagerBehaviour gameManagerBehaviour) : base(gameManager, gameManagerBehaviour)
         {
             // 難易度を追加
@@ -234,17 +237,20 @@ namespace System
             bool hasFinish = false;
             bool hasExit = false;
 
-            // ノルマ金額に到達していないかつゲーム回数が5回より大きい、または所持金額が0であると、完全敗北する
+            // ゲーム回数が5回より大きい、かつ所持金額がノルマ以上であると、完全勝利する
             //      0オリジンなため、4回以上かを判定
-            if (this.gameManager.playerData.GetValues() < this.gameManager.Quata && this.gameManager.GameCount >= 4 || this.gameManager.playerData.GetValues() == 0)
+            if (this.gameManager.playerData.GetValues() >= this.gameManager.Quata && this.gameManager.GameCount >= 4)
             {
-                this.gameManager.GameResult = ResultPhase.Result.Perfect_Lose;
+                isPerfect = true;
+                perfectWin = true;
             }
             
 
-            if(this.gameManager.playerData.GetValues() > this.gameManager.Quata)
+            // ノルマ金額より所持金額が下回ったら完全敗北
+            if(this.gameManager.playerData.GetValues() < this.gameManager.Quata)
             {
-                this.gameManager.GameResult = ResultPhase.Result.Perfect_Win;
+                isPerfect = true;
+                perfectWin = false;
             }
 
             // リザルトに応じた画面の切り替え
@@ -253,43 +259,60 @@ namespace System
                 case Result.None:
                     if (this.messageTexts != null)
                         this.messageTexts.text = GameTexts.Get("result.none");
-
                     hasFinish = true;
+                    this.gameManager.GameCount = 0;
                     break;
                 case Result.Win:
                     if (this.messageTexts != null)
                         this.messageTexts.text = GameTexts.Get("result.win");
 
-                    hasNext = hasFinish = true;
-                    this.gameManager.GameCount += 1;
+                    if (!isPerfect)
+                    {
+                        hasNext = hasFinish = true;
+                        this.gameManager.GameCount += 1;
+                    }
+                    else
+                    {
+                        hasExit = true;
+                        this.gameManager.GameCount = 0;
+                        if (perfectWin)
+                            this.gameManager.GameResult = Result.PerfectWin;
+                    }
                     break;
                 case Result.Draw:
                     if (this.messageTexts != null)
                         this.messageTexts.text = GameTexts.Get("result.draw");
 
-                    hasNext = hasFinish = true;
+                    if (!isPerfect)
+                    {
+                        hasNext = hasFinish = true;
+                    }
+                    else
+                    {
+                        hasExit = true;
+                        this.gameManager.GameCount = 0;
+                        if (perfectWin)
+                            this.gameManager.GameResult = Result.PerfectWin;
+                    }
                     break;
                 case Result.Lose:
                     if (this.messageTexts != null)
                         this.messageTexts.text = GameTexts.Get("result.lose");
 
-                    hasNext = hasFinish = true;
-                    this.gameManager.GameCount += 1;
-                    break;
-                case Result.Perfect_Win:
-                    if (this.messageTexts != null)
-                        this.messageTexts.text = GameTexts.Get("result.win");
-
-                    hasExit = true;
-                    this.gameManager.GameCount = 0;
-                    break;
-
-                case Result.Perfect_Lose:
-                    if (this.messageTexts != null)
-                        this.messageTexts.text = GameTexts.Get("result.lose");
-
-                    hasExit = true;
-                    this.gameManager.GameCount = 0;
+                    if (!isPerfect)
+                    {
+                        hasNext = hasFinish = true;
+                        this.gameManager.GameCount += 1;
+                        if (perfectWin)
+                            this.gameManager.GameResult = Result.PerfectWin;
+                    }
+                    else
+                    {
+                        hasExit = true;
+                        this.gameManager.GameCount = 0;
+                        if (perfectWin)
+                            this.gameManager.GameResult = Result.PerfectWin;
+                    }
                     break;
             }
 
@@ -326,6 +349,8 @@ namespace System
                 this.exitButton.SetActive(false);
 
             this.canvasObject.SetActive(false);
+
+            isPerfect = false;
         }
 
         protected override void Destroy()
@@ -419,8 +444,7 @@ namespace System
             Win,
             Draw,
             Lose,
-            Perfect_Win,
-            Perfect_Lose
+            PerfectWin
         }
     }
 }

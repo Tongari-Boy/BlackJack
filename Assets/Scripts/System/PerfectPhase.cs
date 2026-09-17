@@ -23,13 +23,13 @@ public class PerfectPhase:GamePhase
     {
         perfectCanvas.SetActive(true);
 
-        if (this.gameManager.GameResult == ResultPhase.Result.Perfect_Win)
+        if(this.gameManager.GameResult == ResultPhase.Result.PerfectWin)
         {
-            
+            Debug.Log("かち");
         }
         else
         {
-
+            Debug.Log("まけ");
         }
     }
 
