@@ -6,6 +6,8 @@ using UnityEngine;
 using Util;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
+using Unity.VisualScripting;
 
 namespace System
 {
@@ -53,6 +55,7 @@ namespace System
         private GameObject winUI;
         private GameObject loseUI;
         private bool isWin = false;
+        private bool isPlayerBurstWaiting = false;
         private float mutiplier = 1.0f; // 倍率
         private int payout = 0;         // 払い戻し
 
@@ -117,6 +120,7 @@ namespace System
             loseUI.SetActive(false);
 
             isWin = false;
+            isPlayerBurstWaiting = false;
 
             playerData.SetScore(0);
             dealerData.SetScore(0);
@@ -156,7 +160,11 @@ namespace System
                         isInputLocked = true;
                         if(playerData.GetScore() > 21)
                         {
-                            currentSubPhase = SubPhase.Judge;
+                            if(!isPlayerBurstWaiting)
+                            {
+                                isPlayerBurstWaiting = true;
+                                gameManagerBehaviour.StartCoroutine(PlayerBurstRoutine());
+                            }
                             break;
                         }
                         currentSubPhase = SubPhase.DealerTurn;
@@ -208,6 +216,7 @@ namespace System
                     
                     break;
 
+                    // 勝った場合、ここに飛んで計算処理を行う
                 case SubPhase.Adaptation:
                     int bet = playerData.GetBet();
 
@@ -238,14 +247,21 @@ namespace System
                     dealerCards.ClearCards();
 
                     ShowResultUI();
-
+                    /*
                     ShowConfirmPopup("Result", () =>
                     {
 
                         GameManager.INSTANCE.Call("result");
-                    });
+                    });*/
                     break;
             }
+        }
+
+        public IEnumerator PlayerBurstRoutine()
+        {
+            yield return new WaitForSeconds(2.0f);
+
+            currentSubPhase = SubPhase.Judge;
         }
 
 
@@ -374,10 +390,18 @@ namespace System
 
             isInputLocked = true;
 
-            ShowConfirmPopup("Turn End?", () =>
-            {
-                playerCards.Stand();
-            });
+            ShowConfirmPopup(
+                "ターンを終わりますか？",
+                () =>
+                {
+                    playerCards.Stand();
+                },
+                () =>
+                {
+                    HideConfirmPopup();
+                    isInputLocked = false;
+                }
+            );
         }
 
         /// <summary>
@@ -584,43 +608,51 @@ namespace System
 
             confirmPopupObject = UnityEngine.Object.Instantiate(gameManagerBehaviour.ConfirmPopupPrefab);
 
+            /*
             UIUtil.InvokeIfPresent<Button>(UIUtil.GetChild(confirmPopupObject, "ConfirmButton"), button =>
             {
                 button.onClick.AddListener(OnConfirmButtonClicked);
             });
+            */
 
             confirmPopupObject.SetActive(false);
         }
+        
 
         /// <summary>
         /// 確認ポップアップを表示する
         /// </summary>
         /// <param name="message">表示メッセージ</param>
         /// <param name="onConfirmed">確認ボタンが押されたときに実行する処理</param>
-        private void ShowConfirmPopup(string message,Action onConfirmed)
+        private void ShowConfirmPopup(string message,Action onYesConfirmed,Action onNoConfirmed)
         {
             if (confirmPopupObject == null)
                 return;
+           
+            Button yesButton = confirmPopupObject.transform.Find("Yes").GetComponent<Button>();
+            Button noButton = confirmPopupObject.transform.Find("No").GetComponent<Button>();
 
-            pendingComfirmAction = onConfirmed;
-
-            UIUtil.InvokeIfPresent<TMP_Text>(UIUtil.GetChild(confirmPopupObject, "MessageText"), text =>
+            yesButton.onClick.RemoveAllListeners();
+            yesButton.onClick.AddListener(() =>
             {
-                text.text = message;
+                confirmPopupObject.SetActive(false);
+                onYesConfirmed?.Invoke();
+            });
+
+            noButton.onClick.RemoveAllListeners();
+            noButton.onClick.AddListener(() =>
+            {
+                confirmPopupObject.SetActive(false);
+                onNoConfirmed?.Invoke();
             });
 
             confirmPopupObject.SetActive(true);
         }
 
-        private void OnConfirmButtonClicked()
+        private void HideConfirmPopup()
         {
             confirmPopupObject.SetActive(false);
-
-            var action = pendingComfirmAction;
-            pendingComfirmAction = null;
-            action?.Invoke();
         }
-        
 
         //====================
         // 終了処理
