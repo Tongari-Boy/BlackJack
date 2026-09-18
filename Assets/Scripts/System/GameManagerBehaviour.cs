@@ -59,6 +59,8 @@ namespace Assets.Scripts.System
 
         [Header("パーフェクト関連")]
         [SerializeField] private GameObject perfectCanvas;
+        [SerializeField] private GameObject perfectWinObject;
+        [SerializeField] private GameObject perfectLoseObject;
 
         public GameObject StartCanvas
         {
@@ -113,6 +115,16 @@ namespace Assets.Scripts.System
         public GameObject PerfectCanvas
         {
             get { return this.perfectCanvas; }
+        }
+
+        public GameObject PerfectWinObject
+        {
+            get { return this.perfectWinObject; }
+        }
+
+        public GameObject PerfectLoseObject
+        {
+            get { return this.perfectLoseObject; }
         }
 
         public Cards.Deck Deck => deck;

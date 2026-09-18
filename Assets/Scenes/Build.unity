@@ -377,6 +377,8 @@ MonoBehaviour:
   betOnlyUIs: {fileID: 1860600974}
   betButtoms: {fileID: 1860600976}
   perfectCanvas: {fileID: 5356217505398902457, guid: f5d59cb2049d14f4e97082174850b130, type: 3}
+  perfectWinObject: {fileID: 7811692468415059935, guid: db7eb8003d2b34c42ad488a88f8289df, type: 3}
+  perfectLoseObject: {fileID: 84442249337306971, guid: 60a3e558d847898418136ceab2023fef, type: 3}
 --- !u!4 &410014902
 Transform:
   m_ObjectHideFlags: 0
